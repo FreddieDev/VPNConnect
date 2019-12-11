@@ -81,7 +81,12 @@ ConnectInCisco(OTP) {
 	RunWait "C:\Program Files (x86)\Cisco\Cisco AnyConnect Secure Mobility Client\vpnui.exe"
 	WinWait, %MainMenuTitle%
 	sleep 200
-	ControlClick, Connect, %MainMenuTitle% ; Press connect
+	ControlGet, NotConnecting, Enabled,, Connect, %MainMenuTitle%
+	
+	; Only click connect if the button is enabled
+	; Otherwise, forcing this causes "Already connecting" popup error
+	if (NotConnecting)
+		ControlClick, Connect, %MainMenuTitle% ; Press connect
 
 	WinWaitActive, %ConnectingTitle% ; Wait for password window to show
 	sleep 500
