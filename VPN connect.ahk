@@ -60,7 +60,7 @@ GetOTP(TokenPin) {
 	ControlSetText, Edit1, %TokenPin%, MobilePASS ; Enter token
 	sleep, 50
 	ControlClick, Continue, MobilePASS ; Press continue
-	sleep 1000
+	sleep 2000
 
 	; Save OTP to var
 	ControlGetText, OTP, Edit1, MobilePASS
