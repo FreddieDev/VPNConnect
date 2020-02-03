@@ -48,8 +48,8 @@ GetOTP(TokenPin) {
 	Process, Close, MobilePASS.exe
 	sleep 50
 
-	Run "C:\Program Files (x86)\SafeNet\Authentication\MobilePASS\MobilePASS.exe"
-	sleep 500
+	RunWait, "C:\Program Files (x86)\SafeNet\Authentication\MobilePASS\MobilePASS.exe"
+	sleep 100
 
 	SetControlDelay -1
 	; ControlClick, x22 y103, MobilePASS,, LEFT, 1
@@ -72,6 +72,19 @@ GetOTP(TokenPin) {
 	return OTP
 }
 
+
+; Experimental func to use CMD rather than UI to connect to VPN
+; NOTE: 2nd command (OTP) isn't reliably being used
+ConnectFromCMD(OTP) {
+	; Close active VPN tray UI
+	Process, Close, vpnui.exe
+	
+	; Open new CMD Window and pipe-in username and OTP into VPN app
+	VPNPath := "%ProgramFiles(x86)%\Cisco\Cisco AnyConnect Secure Mobility Client\vpncli.exe"
+	CMDToRun := "@echo %~2|@""" . VPNPath . """ connect sslvpnuk.capgemini.com/SSLVPN-Client||" . A_UserName . "||" . OTP
+	RunWait, cmd.exe /k %CMDToRun%
+}
+
 ; Connects Cisco VPN using your one-time-password
 ConnectInCisco(OTP) {
 	MainMenuTitle := "Cisco AnyConnect Secure Mobility Client"
@@ -80,7 +93,7 @@ ConnectInCisco(OTP) {
 
 	RunWait "C:\Program Files (x86)\Cisco\Cisco AnyConnect Secure Mobility Client\vpnui.exe"
 	WinWait, %MainMenuTitle%
-	sleep 200
+
 	ControlGet, NotConnecting, Enabled,, Connect, %MainMenuTitle%
 	
 	; Only click connect if the button is enabled
@@ -89,14 +102,12 @@ ConnectInCisco(OTP) {
 		ControlClick, Connect, %MainMenuTitle% ; Press connect
 
 	WinWaitActive, %ConnectingTitle% ; Wait for password window to show
-	sleep 500
 	Send, %OTP% ; Enter token
 	sleep 50
 	ControlClick, OK, %ConnectingTitle% ; Press OK
 
 
 	WinWait, %TermsTitle%, Disconnect ; Wait for password window to show
-	sleep 500
 	ControlClick, Accept, %TermsTitle%, Disconnect ; Press Accept
 }
 
@@ -104,8 +115,10 @@ ConnectInCisco(OTP) {
 AcceptSecurityWindows() {
 	WinActivate Windows Security
 	sleep 200
-	MouseClick, left, 120, 275, 1, 0 ; Tick checkbox
-	MouseClick, left, 160, 355, 1, 0 ; Press OK
+	if (WinActive("Windows Security")) {
+		MouseClick, left, 120, 275, 1, 0 ; Tick remember me checkbox
+		MouseClick, left, 160, 355, 1, 0 ; Press OK
+	}
 }
 
 ; Abort script if connected to office WiFi
@@ -119,9 +132,8 @@ SetTimer, timeOut, 15000
 
 
 OTP := GetOTP(YourTokenPin)
-sleep 100
+; ConnectFromCMD(OTP)
 ConnectInCisco(OTP)
-sleep 200
 AcceptSecurityWindows()
 
 
