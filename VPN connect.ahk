@@ -43,13 +43,13 @@ IsAtWork() {
 
 ; Extracts a one-time-password from MobilePASS using your pin
 GetOTP(TokenPin) {
-	; Get one time passcode from MobilePASS
-
+	
+	; Close MPass to return to main menu on next launch
 	Process, Close, MobilePASS.exe
 	sleep 50
 
-	RunWait, "C:\Program Files (x86)\SafeNet\Authentication\MobilePASS\MobilePASS.exe"
-	sleep 100
+	Run, "C:\Program Files (x86)\SafeNet\Authentication\MobilePASS\MobilePASS.exe"
+	sleep 1000
 
 	SetControlDelay -1
 	; ControlClick, x22 y103, MobilePASS,, LEFT, 1
