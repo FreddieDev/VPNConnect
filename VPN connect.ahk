@@ -47,8 +47,9 @@ GetOTP(TokenPin) {
 	; Close MPass to return to main menu on next launch
 	Process, Close, MobilePASS.exe
 	sleep 100
-
-	RunWait, "C:\Program Files (x86)\SafeNet\Authentication\MobilePASS\MobilePASS.exe"
+	
+	; Note RunWait seems to hang endlessly here
+	Run, "C:\Program Files (x86)\SafeNet\Authentication\MobilePASS\MobilePASS.exe"
 	sleep 1200
 
 	SetControlDelay -1
