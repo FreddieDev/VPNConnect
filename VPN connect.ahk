@@ -43,26 +43,27 @@ IsAtWork() {
 
 ; Extracts a one-time-password from MobilePASS using your pin
 GetOTP(TokenPin) {
-	
 	; Close MPass to return to main menu on next launch
 	Process, Close, MobilePASS.exe
 	sleep 100
 	
 	; Note RunWait seems to hang endlessly here
 	Run, "C:\Program Files (x86)\SafeNet\Authentication\MobilePASS\MobilePASS.exe"
-	sleep 1200
+	sleep 750
 
 	SetControlDelay -1
 	; ControlClick, x22 y103, MobilePASS,, LEFT, 1
+	CoordMode, Mouse, Client ; Mouse pos relative to the Window (excluding titlebar)
 	WinActivate MobilePASS
-	MouseClick, left, 130, 120, 1, 0
+	MouseClick, left, 140, 70, 1, 0
+	
 	sleep, 50
 
 	ControlSetText, Edit1, %TokenPin%, MobilePASS ; Enter token
 	sleep, 50
 	ControlClick, Continue, MobilePASS ; Press continue
 	sleep 2000
-
+	
 	; Save OTP to var
 	ControlGetText, OTP, Edit1, MobilePASS
 	sleep 50
@@ -110,6 +111,8 @@ ConnectInCisco(OTP) {
 
 	WinWait, %TermsTitle%, Disconnect ; Wait for password window to show
 	ControlClick, Accept, %TermsTitle%, Disconnect ; Press Accept
+	
+	Sleep, 500 ; Sleep since Cisco can steal focus from other windows during connection process
 }
 
 ; Accepts Windows Security login windows (Skype/Outlook etc)
